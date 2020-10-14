@@ -1,0 +1,38 @@
+vbf_version = 3.0;
+
+header {
+
+// This is a comment
+
+/* This is also a comment */
+
+// Short description of the VBF file
+description = { "Application SW for 5-cyl diesel engine",
+"Created 2011-11-10"
+};
+
+// Software part number
+sw_part_number = "YW4T-13B527-BC";
+
+// Software type
+sw_part_type = EXE;
+
+// Compression and Encryption Method
+data_format_identifier = 0x10;
+
+// ECU address
+ecu_address = 0x720;
+
+// 11-bit CAN-identifers
+frame_format = CAN_STANDARD;
+
+// Erase information
+// start length
+erase = { { 0x00008000, 0x00007EF0},
+{ 0x00010000, 0x0002FE05}
+};
+
+// File checksum
+file_checksum = 0x1A47EDA3;
+
+}

@@ -28,8 +28,7 @@ header {
 
 	   frame_format = CAN_EXTENDED;
  
- erase = { { 0x00004200, 0x00003CBF }
-};
+ erase = {{0x00004200,}};
 
     // Call address
        call = 0x07C6;

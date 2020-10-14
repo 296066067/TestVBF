@@ -1,4 +1,4 @@
-grammar Dbc;
+grammar Vbf;
 
 /*
  * Parser Rules
@@ -15,7 +15,7 @@ database
  * The version specification
  */
 versionSection
-	:	'vbf_version' '=' ID ';'
+	:	'vbf_version' '=' Reals ';'
 	;
 
 /**
@@ -24,7 +24,7 @@ versionSection
 headerSection
 	:	'header' '{'
 		(description)?
-		swPartNnumber
+		swPartNumber
 		swPartType
 		(dataFormatIdentifier)?
 		ecuAddress
@@ -50,7 +50,7 @@ description
 /**
  * The swPartNumber specification
  */
-swPartNnumber
+swPartNumber
 	:	'sw_part_number' '=' 
 		(String | ('{' String ',' String '}'))
 		';'
@@ -71,7 +71,7 @@ swPartType
  */
 dataFormatIdentifier
 	:	'data_format_identifier' '=' 
-		(Hexadecimal | Int)
+		(Hexadecimal | Binary | Decimal)
 		';'
 	;
 
@@ -81,8 +81,8 @@ dataFormatIdentifier
 ecuAddress
 	:	'ecu_address' '=' 
 		(
-		Hexadecimal |
-		('{'Hexadecimal (',' Hexadecimal)* '}')
+		(Hexadecimal) |
+		('{'(Hexadecimal) ',' (Hexadecimal) ',' (Hexadecimal) '}')
 		)
 		';'
 	;
@@ -102,7 +102,8 @@ frameFormat
 erase
 	:	'erase' '=' 
 		'{'
-		('{' Hexadecimal ',' Hexadecimal '}') (',' '{' Hexadecimal ',' Hexadecimal '}')*
+		('{' (Hexadecimal) ',' (Hexadecimal) '}') 
+		(',' '{' (Hexadecimal) ',' (Hexadecimal) '}')*
 		'}'
 		';'
 	;
@@ -113,7 +114,8 @@ erase
 omit
 	:	'omit' '=' 
 		'{'
-		('{' Hexadecimal ',' Hexadecimal '}') (',' '{' Hexadecimal ',' Hexadecimal '}')*
+		('{' (Hexadecimal) ',' (Hexadecimal) '}') 
+		(',' '{' (Hexadecimal) ',' (Hexadecimal) '}')*
 		'}'
 		';'
 	;
@@ -123,7 +125,7 @@ omit
  */
 call
 	:	'call' '=' 
-		Hexadecimal
+		(Hexadecimal)
 		';'
 	;
 
@@ -132,7 +134,7 @@ call
  */
 fileChecksum
 	:	'file_checksum' '=' 
-		Hexadecimal
+		(Hexadecimal)
 		';'
 	;
 
@@ -144,9 +146,9 @@ fileChecksum
  * "Any string of alphabetic ([a-zA-Z\200-\377]) characters, underscores
  *  ('_') or digits ([0-9]), not beginning with a digit"
  */
-ID
-	:	Digit'.'Digit
-	;
+//ID
+//	:	Digit'.'Digit
+//	;
 
 /** 
  * "any double-quoted string ("...") possibly containing escaped quotes"
@@ -167,8 +169,16 @@ Hexadecimal
 	:	('0x' | '0X')(Digit | Letter)+
 	;
 
-Int
-	:	'0'..'9'+
+Binary
+	:	('0b' | '0B')([01])+
+	;
+
+Decimal
+	:	(Digit)+
+	;
+
+Reals
+	:	Digit+ '.' Digit+
 	;
 
 Whitespace
@@ -188,3 +198,5 @@ CPlusStyleComment
 CStyleComment
 	:	'/*'.*?'*/' -> skip
 	;
+
+
