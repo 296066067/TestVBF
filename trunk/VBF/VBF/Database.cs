@@ -20,7 +20,7 @@ namespace VBF
         DATA,
         EXE,
         GBL,
-        SBL,
+        Test,
         SIGCFG,
         TEST
     }
@@ -33,6 +33,18 @@ namespace VBF
         Invalid,
         CAN_STANDARD,
         CAN_EXTENDED
+    }
+
+    /// <summary>
+    /// The validity of content in header.
+    /// </summary>
+    public enum ValidityOfContent
+    {
+        NonExistent,
+        Existent,
+        ParseError,
+        ExistentAndValid,
+        ExistentButInvalid
     }
 
     /// <summary>
@@ -50,54 +62,109 @@ namespace VBF
     public class HeaderSection
     {
         /// <summary>
-        /// The description of header section.
+        /// The description of header section. It is optional content.
         /// </summary>
         protected List<string> description = new List<string>();
 
         /// <summary>
-        /// The swPartNumber of header section.
+        /// The flag of description valid.
+        /// </summary>
+        protected ValidityOfContent descriptionIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The swPartNumber of header section. It is mandatory content.
         /// </summary>
         protected List<string> swPartNumber = new List<string>();
 
         /// <summary>
-        /// The swPartType of header section.
+        /// The flag of swPartNumber valid.
         /// </summary>
-        protected SwPartType swPartType;
+        protected ValidityOfContent swPartNumberIsValid = ValidityOfContent.NonExistent;
 
         /// <summary>
-        /// The dataFormatIdentifier of header section.
+        /// The swPartType of header section. It is mandatory content.
         /// </summary>
-        protected UInt16 dataFormatIdentifier;
+        protected SwPartType swPartType = SwPartType.Invalid;
 
         /// <summary>
-        /// The ceuAddress of header section.
+        /// The flag of swPartType valid.
+        /// </summary>
+        protected ValidityOfContent swPartTypeIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The dataFormatIdentifier of header section. It is optional content.
+        /// </summary>
+        protected UInt16 dataFormatIdentifier = 0;
+
+        /// <summary>
+        /// The flag of dataFormatIdentifier valid.
+        /// </summary>
+        protected ValidityOfContent dataFormatIdentifierIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The ceuAddress of header section. It is mandatory content.
         /// </summary>
         protected List<UInt16> ecuAddress = new List<UInt16>();
 
         /// <summary>
-        /// The frameFormat of header section.
+        /// The flag of ecuAddress valid.
+        /// </summary>
+        protected ValidityOfContent ecuAddressIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The frameFormat of header section. It is mandatory content.
         /// </summary>
         protected FrameFormat frameFormat;
 
         /// <summary>
-        /// The erase of header section.
+        /// The flag of frameFormat valid. It is mandatory content.
+        /// </summary>
+        protected ValidityOfContent frameFormatIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The erase of header section. It is optional content.
         /// </summary>
         protected List<Block> erase = new List<Block>();
 
         /// <summary>
-        /// The omit of header section.
+        /// The flag of erase valid.
+        /// </summary>
+        protected ValidityOfContent eraseIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The omit of header section. It is optional content.
         /// </summary>
         protected List<Block> omit = new List<Block>();
 
         /// <summary>
-        /// The call of header section.
+        /// The flag of omit valid.
+        /// </summary>
+        protected ValidityOfContent omitIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The call of header section. It is optional content.
         /// </summary>
         protected UInt32 call;
 
         /// <summary>
-        /// The fileCheckSum of header section.
+        /// The flag of call valid.
+        /// </summary>
+        protected ValidityOfContent callIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The fileCheckSum of header section. It is mandatory content.
         /// </summary>
         protected UInt32 fileCheckSum;
+
+        /// <summary>
+        /// The flag of fileCheckSum valid.
+        /// </summary>
+        protected ValidityOfContent fileCheckSumIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
+        /// The flag of head section valid.
+        /// </summary>
+        protected ValidityOfContent headerIsValid = ValidityOfContent.NonExistent;
 
         /// <summary>
         /// The method is used to add a new string into the description.
@@ -114,6 +181,14 @@ namespace VBF
             return 0;
         }
 
+        public List<string> DescriptionValue
+        {
+            get
+            {
+                return description;
+            }
+        }
+
         /// <summary>
         /// The method is used to add a new string into the sw part number.
         /// </summary>
@@ -127,6 +202,14 @@ namespace VBF
 
             swPartNumber.Add(str);
             return 0;
+        }
+
+        public List<string> SwPartNumberValue
+        {
+            get
+            {
+                return swPartNumber;
+            }
         }
 
         /// <summary>
@@ -170,6 +253,14 @@ namespace VBF
             return 0;
         }
 
+        public List<UInt16> EcuAddressValue
+        {
+            get
+            {
+                return ecuAddress;
+            }
+        }
+
         /// <summary>
         /// Gets or set the frame format of the vbf file.
         /// </summary>
@@ -196,6 +287,14 @@ namespace VBF
             return 0;
         }
 
+        public List<Block> EraseValue
+        {
+            get
+            {
+                return erase;
+            }
+        }
+
         /// <summary>
         /// The method is used to add a omit address into omit.
         /// </summary>
@@ -205,6 +304,14 @@ namespace VBF
         {
             omit.Add(block);
             return 0;
+        }
+
+        public List<Block> OmitValue
+        {
+            get
+            {
+                return omit;
+            }
         }
 
         /// <summary>
@@ -236,6 +343,439 @@ namespace VBF
                 fileCheckSum = value;
             }
         }
+
+        public ValidityOfContent DescriptionIsValidValue
+        {
+            get
+            {
+                return descriptionIsValid;
+            }
+            set
+            {
+                descriptionIsValid = value;
+            }
+        }
+
+        public ValidityOfContent SwPartNumberIsValidValue
+        {
+            get
+            {
+                return swPartNumberIsValid;
+            }
+            set
+            {
+                swPartNumberIsValid = value;
+            }
+        }
+
+        public ValidityOfContent SwPartTypeIsValidValue
+        {
+            get
+            {
+                return swPartTypeIsValid;
+            }
+            set
+            {
+                swPartTypeIsValid = value;
+            }
+        }
+
+        public ValidityOfContent DataFormatIdentifierIsValidValue
+        {
+            get
+            {
+                return dataFormatIdentifierIsValid;
+            }
+            set
+            {
+                dataFormatIdentifierIsValid = value;
+            }
+        }
+
+        public ValidityOfContent EcuAddressIsValidValue
+        {
+            get
+            {
+                return ecuAddressIsValid;
+            }
+            set
+            {
+                ecuAddressIsValid = value;
+            }
+        }
+
+        public ValidityOfContent FrameFormatIsValidValue
+        {
+            get
+            {
+                return frameFormatIsValid;
+            }
+            set
+            {
+                frameFormatIsValid = value;
+            }
+        }
+
+        public ValidityOfContent EraseIsValidValue
+        {
+            get
+            {
+                return eraseIsValid;
+            }
+            set
+            {
+                eraseIsValid = value;
+            }
+        }
+
+        public ValidityOfContent OmitIsValidValue
+        {
+            get
+            {
+                return omitIsValid;
+            }
+            set
+            {
+                omitIsValid = value;
+            }
+        }
+
+        public ValidityOfContent CallIsValidValue
+        {
+            get
+            {
+                return callIsValid;
+            }
+            set
+            {
+                callIsValid = value;
+            }
+        }
+
+        public ValidityOfContent FileCheckSumIsValidValue
+        {
+            get
+            {
+                return fileCheckSumIsValid;
+            }
+            set
+            {
+                fileCheckSumIsValid = value;
+            }
+        }
+
+        public ValidityOfContent HeaderIsValidValue
+        {
+            get
+            {
+                return headerIsValid;
+            }
+            set
+            {
+                headerIsValid = value;
+            }
+
+        }
+        /// <summary>
+        /// The method is used to check the valid of description.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkDescriptionIsValid()
+        {
+            if (descriptionIsValid == ValidityOfContent.NonExistent ||
+                descriptionIsValid == ValidityOfContent.ParseError)
+                return descriptionIsValid;
+
+            if (descriptionIsValid == ValidityOfContent.Existent)
+            {
+                //The description contain a maximum of 16 rows, with each row containing a maximum of 80 characters.
+                for (int i = 0; i < description.Count(); i++)
+                {
+                    if (description.ElementAt(i).Length > 80 || i > 15)
+                        return ValidityOfContent.ExistentButInvalid;
+                }
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of swPartNumber.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkSwPartNumberIsValid()
+        {
+            string str;
+
+            if (swPartNumberIsValid == ValidityOfContent.NonExistent ||
+                swPartNumberIsValid == ValidityOfContent.ParseError)
+                return swPartNumberIsValid;
+
+            for (int i = 0; i < swPartNumber.Count(); i++)
+            {
+                str = swPartNumber.ElementAt(i);
+                //The sw part number shall be contained in quotes and shall consist of a maximum of 24 characters(bytes).
+                //No white space characters or comments are allowed within these quotes.
+                if (str.Contains(" ") || str.Length > 24 || str.Contains("/*") || str.Contains("*/") || i > 1)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of swPartType.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkSwPartType()
+        {
+            if (swPartTypeIsValid == ValidityOfContent.NonExistent ||
+                swPartTypeIsValid == ValidityOfContent.ParseError ||
+                swPartTypeIsValid == ValidityOfContent.ExistentButInvalid)
+                return swPartTypeIsValid;
+
+            if (swPartTypeIsValid == ValidityOfContent.Existent)
+            {
+                if (swPartType == SwPartType.Invalid)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of dataFormatIdentifier.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkDataFormatIdentifier()
+        {
+            if (dataFormatIdentifierIsValid == ValidityOfContent.NonExistent ||
+                dataFormatIdentifierIsValid == ValidityOfContent.ParseError ||
+                dataFormatIdentifierIsValid == ValidityOfContent.ExistentButInvalid)
+                return dataFormatIdentifierIsValid;
+
+            if (dataFormatIdentifierIsValid == ValidityOfContent.Existent)
+            {
+                //Valid values for the data format identifier are one byte long with a range of 0x00 to 0xFF.
+                if (dataFormatIdentifier > 0xFF)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of ecuAddress.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkEcuAddress()
+        {
+            if (ecuAddressIsValid == ValidityOfContent.NonExistent ||
+                ecuAddressIsValid == ValidityOfContent.ParseError ||
+                ecuAddressIsValid == ValidityOfContent.ExistentButInvalid)
+                return ecuAddressIsValid;
+
+            if (ecuAddressIsValid == ValidityOfContent.Existent)
+            {
+                if (frameFormat == FrameFormat.CAN_EXTENDED)
+                {
+                    if (ecuAddress.Count() == 1)
+                    {
+                        if (ecuAddress.ElementAt(0) > 0xFF)
+                            return ValidityOfContent.ExistentButInvalid;
+                    }
+                    if (ecuAddress.Count() == 3)
+                    {
+                        if (ecuAddress.ElementAt(0) > 0xFF ||
+                            ecuAddress.ElementAt(1) > 0x07 ||
+                            ecuAddress.ElementAt(2) > 0xFF)
+                            return ValidityOfContent.ExistentButInvalid;
+                    }
+                }
+                else if (frameFormat == FrameFormat.CAN_STANDARD)
+                {
+                    if (ecuAddress.Count() == 1)
+                    {
+                        if (ecuAddress.ElementAt(0) > 0x7FF)
+                            return ValidityOfContent.ExistentButInvalid;
+                    }
+                    if (ecuAddress.Count() == 3)
+                    {
+                        if (ecuAddress.ElementAt(0) > 0x7FF ||
+                            ecuAddress.ElementAt(1) > 0xFF ||
+                            ecuAddress.ElementAt(2) > 0xFF)
+                            return ValidityOfContent.ExistentButInvalid;
+                    }
+                }
+                else
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of frameFormat.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkFrameFormat()
+        {
+            if (frameFormatIsValid == ValidityOfContent.NonExistent ||
+                frameFormatIsValid == ValidityOfContent.ParseError ||
+                frameFormatIsValid == ValidityOfContent.ExistentButInvalid)
+                return frameFormatIsValid;
+
+            if (frameFormatIsValid == ValidityOfContent.Existent)
+            {
+                if (frameFormat == FrameFormat.Invalid)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of erase.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkErase()
+        {
+            if (eraseIsValid == ValidityOfContent.NonExistent ||
+                eraseIsValid == ValidityOfContent.ParseError ||
+                eraseIsValid == ValidityOfContent.ExistentButInvalid)
+                return eraseIsValid;
+
+            if (eraseIsValid == ValidityOfContent.Existent)
+            {
+                UInt64 data = 0;
+                for (int i = 0; i < erase.Count(); i++)
+                {
+                    // Address overflow.
+                    data = (UInt64)erase.ElementAt(i).startAddress + (UInt64)erase.ElementAt(i).length;
+                    if (data > 0xFFFFFFFF)
+                        return ValidityOfContent.ExistentButInvalid;
+                }
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of omit.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkOmit()
+        {
+            if (omitIsValid == ValidityOfContent.NonExistent ||
+                omitIsValid == ValidityOfContent.ParseError ||
+                omitIsValid == ValidityOfContent.ExistentButInvalid)
+                return omitIsValid;
+
+            if (omitIsValid == ValidityOfContent.Existent)
+            {
+                if (eraseIsValid == ValidityOfContent.ExistentAndValid)
+                {
+                    for (int i = 0; i < omit.Count(); i++)
+                    {
+                        bool isFound = false;
+                        for (int j = 0; j < erase.Count(); j++)
+                        {
+                            if (erase.ElementAt(j).startAddress == omit.ElementAt(i).startAddress &&
+                                erase.ElementAt(j).length == omit.ElementAt(i).length)
+                            {
+                                isFound = true;
+                            }
+                        }
+                        if (!isFound)
+                            return ValidityOfContent.ExistentButInvalid;
+                    }
+                }
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of call.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkCall()
+        {
+            if (callIsValid == ValidityOfContent.ParseError ||
+                callIsValid == ValidityOfContent.ExistentButInvalid)
+                return callIsValid;
+
+            //The call entry is mandatory in VBF files with sw part type identifier values equal to SBL or GBL and optional
+            //in VBF files with sw part type equal to TEST.
+            //For all other identifier values of sw part type, the call entry is not allowed.
+            if (swPartType == SwPartType.Test || swPartType == SwPartType.GBL)
+            {
+                if (callIsValid == ValidityOfContent.NonExistent)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            else if (swPartType == SwPartType.Test)
+            {
+                
+            }
+            else
+            {
+                if (callIsValid == ValidityOfContent.Existent)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+
+            if (callIsValid == ValidityOfContent.NonExistent)
+                return callIsValid;
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of fileCheckSum.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkFileCheckSum()
+        {
+            if (fileCheckSumIsValid == ValidityOfContent.NonExistent ||
+                fileCheckSumIsValid == ValidityOfContent.ParseError ||
+                fileCheckSumIsValid == ValidityOfContent.ExistentButInvalid)
+                return fileCheckSumIsValid;
+
+            if (fileCheckSumIsValid == ValidityOfContent.Existent)
+            {
+
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        public ValidityOfContent checkHeaderIsValid()
+        {
+            if (headerIsValid == ValidityOfContent.NonExistent ||
+                headerIsValid == ValidityOfContent.ParseError)
+                return headerIsValid;
+
+            if (headerIsValid == ValidityOfContent.Existent)
+            {
+                descriptionIsValid = checkDescriptionIsValid();
+                swPartNumberIsValid = checkSwPartNumberIsValid();
+                swPartTypeIsValid = checkSwPartType();
+                dataFormatIdentifierIsValid = checkDataFormatIdentifier();
+                frameFormatIsValid = checkFrameFormat();
+                ecuAddressIsValid = checkEcuAddress();
+                eraseIsValid = checkErase();
+                omitIsValid = checkOmit();
+                callIsValid = checkCall();
+                fileCheckSumIsValid = checkFileCheckSum();
+
+                // The following contents are mandatory requirements, must be existent and valid.
+                if (swPartNumberIsValid != ValidityOfContent.ExistentAndValid ||
+                    swPartTypeIsValid != ValidityOfContent.ExistentAndValid ||
+                    ecuAddressIsValid != ValidityOfContent.ExistentAndValid ||
+                    frameFormatIsValid != ValidityOfContent.ExistentAndValid ||
+                    fileCheckSumIsValid != ValidityOfContent.ExistentAndValid)
+                    return ValidityOfContent.ExistentButInvalid;
+
+                // The following contents are optional, but existent and invalid.
+                if (descriptionIsValid == ValidityOfContent.ExistentButInvalid ||
+                    dataFormatIdentifierIsValid == ValidityOfContent.ExistentButInvalid ||
+                    eraseIsValid == ValidityOfContent.ExistentButInvalid ||
+                    omitIsValid == ValidityOfContent.ExistentButInvalid ||
+                    callIsValid == ValidityOfContent.ExistentButInvalid)
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+
+            return ValidityOfContent.ExistentAndValid;
+        }
     }
 
     /// <summary>
@@ -249,6 +789,11 @@ namespace VBF
         protected string version;
 
         /// <summary>
+        /// The flag of version valid.
+        /// </summary>
+        protected ValidityOfContent versionIsValid = ValidityOfContent.NonExistent;
+
+        /// <summary>
         /// The header section of the VBF file.
         /// </summary>
         protected HeaderSection header = new HeaderSection();
@@ -256,7 +801,7 @@ namespace VBF
         /// <summary>
         /// The valid flag of vbf file.
         /// </summary>
-        protected bool isValid = true;
+        protected bool databaseIsValid = true;
 
         /// <summary>
         /// Gets or set the version of the vbf file.
@@ -280,16 +825,15 @@ namespace VBF
         {
             get
             {
-                return isValid;
+                return databaseIsValid;
             }
             set
             {
-                isValid = value;
+                databaseIsValid = value;
             }
         }
 
         /// <summary>
-        /// 
         /// Gets or set the valid flag of the vbf file.
         /// </summary>
         public HeaderSection Header
@@ -298,6 +842,50 @@ namespace VBF
             {
                 return header;
             }
+        }
+
+        public ValidityOfContent VersionIsValidVaule
+        {
+            get
+            {
+                return versionIsValid;
+            }
+            set
+            {
+                versionIsValid = value;
+            }
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of version.
+        /// </summary>
+        /// <returns></returns>
+        protected ValidityOfContent checkVersionIsValid()
+        {
+            if (versionIsValid == ValidityOfContent.NonExistent ||
+                versionIsValid == ValidityOfContent.ParseError)
+                return versionIsValid;
+
+            if (versionIsValid == ValidityOfContent.Existent)
+            {
+                if (version != "3.0")
+                    return ValidityOfContent.ExistentButInvalid;
+            }
+            return ValidityOfContent.ExistentAndValid;
+        }
+
+        /// <summary>
+        /// The method is used to check the valid of database.
+        /// </summary>
+        /// <returns></returns>
+        public bool checkDatabaseIsValid()
+        {
+            // Version and header must be existent and valid.
+            if (ValidityOfContent.ExistentAndValid == (versionIsValid = checkVersionIsValid()) &&
+                ValidityOfContent.ExistentAndValid == (header.HeaderIsValidValue = header.checkHeaderIsValid()))
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -325,12 +913,14 @@ namespace VBF
             IParseTree tree = parser.database();
 
             // For test purpose, print out the parse tree.
-             Console.Write(tree.ToStringTree());
+            //Console.Write(tree.ToStringTree());
             VbfVisitor loader = new VbfVisitor();
 
             loader.Visit(tree);
 
-            return loader.Database;
+            Database d = loader.Database;
+            d.Valid = d.checkDatabaseIsValid();
+            return d;
         }
 
     }

@@ -40,8 +40,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                //database.Valid = false;
                 return base.VisitDatabase(context);
             }
 
@@ -58,11 +58,12 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.VersionIsValidVaule = ValidityOfContent.ParseError;
                 return base.VisitVersionSection(context);
             }
 
+            database.VersionIsValidVaule = ValidityOfContent.Existent;
             database.Version = context.Reals().GetText();
             return base.VisitVersionSection(context);
         }
@@ -79,8 +80,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.EcuAddressIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitEcuAddress(context);
             }
 
@@ -93,13 +94,14 @@ namespace VBF
                 catch (Exception e)
                 {
                     // Convert string to uint16 failed means vbf file is invalid.
-                    Console.Write(e.Message);
-                    database.Valid = false;
+                    Console.WriteLine(e.Message);
+                    database.Header.EcuAddressIsValidValue = ValidityOfContent.ExistentButInvalid;
                     return base.VisitEcuAddress(context);
                 }
                 database.Header.addEcuAddress(data);
             }
 
+            database.Header.EcuAddressIsValidValue = ValidityOfContent.Existent;
             return base.VisitEcuAddress(context);
         }
 
@@ -117,17 +119,17 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.EraseIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitErase(context);
             }
 
             //If sw part type = SBL or GBL, the VBF file shall not contain the erase identifier.
-            if (database.Header.SwPartTypeValue == SwPartType.SBL || 
+            if (database.Header.SwPartTypeValue == SwPartType.Test || 
                 database.Header.SwPartTypeValue == SwPartType.GBL ||
                 database.Header.SwPartTypeValue == SwPartType.Invalid)
             {
-                Console.Write("erase is invalid. ");
+                Console.WriteLine("erase is invalid. ");
                 database.Valid = false;
                 return base.VisitErase(context);
             }
@@ -147,8 +149,8 @@ namespace VBF
                 catch (Exception e)
                 {
                     // Convert string to uint32 failed means vbf file is invalid.
-                    Console.Write(e.Message);
-                    database.Valid = false;
+                    Console.WriteLine(e.Message);
+                    database.Header.EraseIsValidValue = ValidityOfContent.ExistentButInvalid;
                     return base.VisitErase(context);
                 }
 
@@ -156,6 +158,7 @@ namespace VBF
                     database.Header.addErase(block);
             }
 
+            database.Header.EraseIsValidValue = ValidityOfContent.Existent;
             return base.VisitErase(context);
         }
 
@@ -171,8 +174,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.DataFormatIdentifierIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitDataFormatIdentifier(context);
             }
 
@@ -193,19 +196,12 @@ namespace VBF
             catch (Exception e)
             {
                 // Convert string to uint16 failed means vbf file is invalid.
-                Console.Write(e.Message);
-                database.Valid = false;
+                Console.WriteLine(e.Message);
+                database.Header.DataFormatIdentifierIsValidValue = ValidityOfContent.ExistentButInvalid;
                 return base.VisitDataFormatIdentifier(context);
             }
 
-            //Valid values for the data format identifier are one byte long with a range of 0x00 to 0xFF.
-            if (data > 0xFF)
-            {
-                Console.Write("data_format_identifier is invalid.");
-                database.Valid = false;
-                return base.VisitDataFormatIdentifier(context);
-            }
-
+            database.Header.DataFormatIdentifierIsValidValue = ValidityOfContent.Existent;
             database.Header.DataFormatIdentifierValue = data;
             return base.VisitDataFormatIdentifier(context);
         }
@@ -218,12 +214,12 @@ namespace VBF
         public override object VisitDescription([NotNull] VbfParser.DescriptionContext context)
         {
             string str;
-            int count = 0;
+
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.DescriptionIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitDescription(context);
             }
 
@@ -232,18 +228,10 @@ namespace VBF
             {
                 //Remove the double-quoted in the string.
                 str = node.GetText().Replace("\"", "");
-
-                //The description contain a maximum of 16 rows, with each row containing a maximum of 80 characters.
-                if (str.Length > 80 || count > 16)
-                {
-                    Console.Write("description is invalid.");
-                    database.Valid = false;
-                    break;
-                }
                 database.Header.addDescritption(str);
-                count++;
             }
 
+            database.Header.DescriptionIsValidValue = ValidityOfContent.Existent;
             return base.VisitDescription(context);
         }
 
@@ -257,8 +245,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.FrameFormatIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitFrameFormat(context);
             }
 
@@ -271,9 +259,10 @@ namespace VBF
             else
             {
                 database.Header.FrameFormatValue = FrameFormat.Invalid;
-                database.Valid = false;
+                database.Header.FrameFormatIsValidValue = ValidityOfContent.ExistentButInvalid;
             }
 
+            database.Header.FrameFormatIsValidValue = ValidityOfContent.Existent;
             return base.VisitFrameFormat(context);
         }
 
@@ -289,8 +278,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.FileCheckSumIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitFileChecksum(context);
             }
 
@@ -301,11 +290,12 @@ namespace VBF
             catch (Exception e)
             {
                 // Convert string to uint32 failed means vbf file is invalid.
-                Console.Write(e.Message);
-                database.Valid = false;
+                Console.WriteLine(e.Message);
+                database.Header.FileCheckSumIsValidValue = ValidityOfContent.ExistentButInvalid;
                 return base.VisitFileChecksum(context);
             }
 
+            database.Header.FileCheckSumIsValidValue = ValidityOfContent.Existent;
             database.Header.FileCheckSumValue = data;
             return base.VisitFileChecksum(context);
         }
@@ -320,11 +310,12 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.HeaderIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitHeaderSection(context);
-
             }
+
+            database.Header.HeaderIsValidValue = ValidityOfContent.Existent;
             return base.VisitHeaderSection(context);
         }
 
@@ -340,8 +331,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.SwPartNumberIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitSwPartNumber(context);
             }
 
@@ -350,18 +341,10 @@ namespace VBF
             {
                 //Remove the double-quoted in the string.
                 str = node.GetText().Replace("\"", "");
-
-                //The sw part number shall be contained in quotes and shall consist of a maximum of 24 characters(bytes).
-                //No white space characters or comments are allowed within these quotes.
-                if (str.Contains(" ") || str.Length > 24 || str.Contains("/*") || str.Contains("*/"))
-                {
-                    Console.Write("sw_part_number is invalid.");
-                    database.Valid = false;
-                    break;
-                }
                 database.Header.addSwPartNumber(str);
             }
 
+            database.Header.SwPartNumberIsValidValue = ValidityOfContent.Existent;
             return base.VisitSwPartNumber(context);
         }
 
@@ -379,8 +362,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.OmitIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitOmit(context);
             }
 
@@ -399,8 +382,8 @@ namespace VBF
                 catch (Exception e)
                 {
                     // Convert string to uint32 failed means vbf file is invalid.
-                    Console.Write(e.Message);
-                    database.Valid = false;
+                    Console.WriteLine(e.Message);
+                    database.Header.OmitIsValidValue = ValidityOfContent.ExistentButInvalid;
                     return base.VisitOmit(context);
                 }
 
@@ -408,6 +391,7 @@ namespace VBF
                     database.Header.addOmit(block);
             }
 
+            database.Header.OmitIsValidValue = ValidityOfContent.Existent;
             return base.VisitOmit(context);
         }
 
@@ -422,21 +406,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
-                return base.VisitCall(context);
-            }
-
-            //The call entry is mandatory in VBF files with sw part type identifier values equal to SBL or GBL and optional
-            //in VBF files with sw part type equal to TEST.
-            //For all other identifier values of sw part type, the call entry is not allowed.
-            if (database.Header.SwPartTypeValue != SwPartType.SBL &&
-                database.Header.SwPartTypeValue != SwPartType.GBL &&
-                database.Header.SwPartTypeValue != SwPartType.TEST &&
-                database.Header.SwPartTypeValue != SwPartType.Invalid)
-            {
-                Console.Write("call is invalid. ");
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.CallIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitCall(context);
             }
 
@@ -447,11 +418,12 @@ namespace VBF
             catch (Exception e)
             {
                 // Convert string to uint32 failed means vbf file is invalid.
-                Console.Write(e.Message);
-                database.Valid = false;
+                Console.WriteLine(e.Message);
+                database.Header.CallIsValidValue = ValidityOfContent.ExistentButInvalid;
                 return base.VisitCall(context);
             }
 
+            database.Header.CallIsValidValue = ValidityOfContent.Existent;
             database.Header.CallValue = data;
             return base.VisitCall(context);
         }
@@ -466,8 +438,8 @@ namespace VBF
             //Exception is not null means some errors happen and vbf file is invalid.
             if (context.exception != null)
             {
-                Console.Write(context.exception);
-                database.Valid = false;
+                Console.WriteLine(context.exception);
+                database.Header.SwPartTypeIsValidValue = ValidityOfContent.ParseError;
                 return base.VisitSwPartType(context);
             }
 
@@ -484,7 +456,7 @@ namespace VBF
             else if (str.Equals("GBL"))
                 database.Header.SwPartTypeValue = SwPartType.GBL;
             else if (str.Equals("SBL"))
-                database.Header.SwPartTypeValue = SwPartType.SBL;
+                database.Header.SwPartTypeValue = SwPartType.Test;
             else if (str.Equals("SIGCFG"))
                 database.Header.SwPartTypeValue = SwPartType.SIGCFG;
             else if (str.Equals("TEST"))
@@ -492,9 +464,10 @@ namespace VBF
             else
             {
                 database.Header.SwPartTypeValue = SwPartType.Invalid;
-                database.Valid = false;
+                database.Header.SwPartTypeIsValidValue = ValidityOfContent.ExistentButInvalid;
             }
 
+            database.Header.SwPartTypeIsValidValue = ValidityOfContent.Existent;
             return base.VisitSwPartType(context);
         }
 
