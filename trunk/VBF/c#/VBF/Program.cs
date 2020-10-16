@@ -10,7 +10,7 @@ namespace VBF
     {
         static void print_database()
         {
-            string path = "E:\\Sumarte\\Code\\vba3_VBF\\trunk\\VBF\\VBF\\test.vbf";
+            string path = "E:\\Sumarte\\Code\\vba3_VBF\\trunk\\VBF\\c#\\VBF\\test.vbf";
             Database database = Database.Load(path);
 
             Console.WriteLine("\r\n vbf file valid : {0}, version_section valid : {1}, header_section valid : {2} \r\n", database.Valid, database.VersionIsValidVaule, database.Header.HeaderIsValidValue);
