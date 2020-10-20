@@ -1,86 +1,119 @@
 lexer grammar TLexer;
 
-// These are all supported lexer sections:
+options { language=Cpp; }
 
-// Lexer file header. Appears at the top of h + cpp files. Use e.g. for copyrights.
-@lexer::header {/* lexer header section */}
+/*
+ * Lexer Rules
+ */
 
-// Appears before any #include in h + cpp files.
-@lexer::preinclude {/* lexer precinclude section */}
+/** 
+ * "Any string of alphabetic ([a-zA-Z\200-\377]) characters, underscores
+ *  ('_') or digits ([0-9]), not beginning with a digit"
+ */
+//ID
+//	:	Digit'.'Digit
+//	;
 
-// Follows directly after the standard #includes in h + cpp files.
-@lexer::postinclude {
-/* lexer postinclude section */
-#ifndef _WIN32
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-}
+/** 
+ * "any double-quoted string ("...") possibly containing escaped quotes"
+ */
+String
+	:	'"' (~'"')* '"' 
+	;
 
-// Directly preceds the lexer class declaration in the h file (e.g. for additional types etc.).
-@lexer::context {/* lexer context section */}
+Digit
+	:	[0-9]
+	;
 
-// Appears in the public part of the lexer in the h file.
-@lexer::members {/* public lexer declarations section */
-bool canTestFoo() { return true; }
-bool isItFoo() { return true; }
-bool isItBar() { return true; }
+Letter
+	:	[a-zA-Z\u0080-\u00FF_]
+	;
 
-void myFooLexerAction() { /* do something*/ };
-void myBarLexerAction() { /* do something*/ };
-}
+Hexadecimal
+	:	('0x' | '0X')(Digit | Letter)+
+	;
 
-// Appears in the private part of the lexer in the h file.
-@lexer::declarations {/* private lexer declarations/members section */}
+Binary
+	:	('0b' | '0B')([01])+
+	;
 
-// Appears in line with the other class member definitions in the cpp file.
-@lexer::definitions {/* lexer definitions section */}
+Decimal
+	:	(Digit)+
+	;
 
-channels { CommentsChannel, DirectiveChannel }
+Reals
+	:	Digit+ '.' Digit+
+	;
 
-tokens {
-	DUMMY
-}
+Whitespace
+	:	[ \t\n\r]+ -> skip 
+	;
 
-Return: 'return';
-Continue: 'continue';
+/**
+ * The C++ style comment.
+ */
+CPlusStyleComment
+	:	'//'.*?'\n' -> skip
+	;
 
-INT: Digit+;
-Digit: [0-9];
+/**
+ * The C style comment.
+ */
+CStyleComment
+	:	'/*'.*?'*/' -> skip
+	;
+	
+	
+Vbf_version : 'vbf_version';
 
-ID: LETTER (LETTER | '0'..'9')*;
-fragment LETTER : [a-zA-Z\u0080-\u{10FFFF}];
+Is : '=';
 
-LessThan: '<';
-GreaterThan:  '>';
-Equal: '=';
-And: 'and';
+Semicolon : ';';
 
-Colon: ':';
-Semicolon: ';';
-Plus: '+';
-Minus: '-';
-Star: '*';
-OpenPar: '(';
-ClosePar: ')';
-OpenCurly: '{' -> pushMode(Mode1);
-CloseCurly: '}' -> popMode;
-QuestionMark: '?';
-Comma: ',' -> skip;
-Dollar: '$' -> more, mode(Mode1);
-Ampersand: '&' -> type(DUMMY);
+Header : 'header';
 
-String: '"' .*? '"';
-Foo: {canTestFoo()}? 'foo' {isItFoo()}? { myFooLexerAction(); };
-Bar: 'bar' {isItBar()}? { myBarLexerAction(); };
-Any: Foo Dot Bar? DotDot Baz;
+LeftBrace : '{';
 
-Comment : '#' ~[\r\n]* '\r'? '\n' -> channel(CommentsChannel);
-WS: [ \t\r\n]+ -> channel(99);
+RightBrace : '}';
 
-fragment Baz: 'Baz';
+Description : 'description';
 
-mode Mode1;
-Dot: '.';
+SwPartNumber : 'sw_part_number';
 
-mode Mode2;
-DotDot: '..';
+SwPartType : 'sw_part_type';
+
+Carcfg : 'CARCFG';
+
+Custom : 'CUSTOM';
+
+Data : 'DATA';
+
+Exe : 'EXE';
+
+Gbl : 'GBL';
+
+Sbl : 'SBL';
+
+Sigcfg : 'SIGCFG';
+
+Test : 'TEST';
+
+DataFormatIdentifier : 'data_format_identifier';
+
+EcuAddress : 'ecu_address';
+
+FrameFormat : 'frame_format';
+
+CanStandard : 'CAN_STANDARD';
+
+CanExtended : 'CAN_EXTENDED';
+
+Erase : 'erase';
+
+Omit : 'omit';
+
+Call : 'call';
+
+FileChecksum : 'file_checksum';
+
+Comma : ',';

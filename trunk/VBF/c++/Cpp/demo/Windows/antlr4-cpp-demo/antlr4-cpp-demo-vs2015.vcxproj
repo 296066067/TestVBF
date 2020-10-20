@@ -141,6 +141,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\vs-2015\$(PlatformTarget)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(PlatformTarget)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IncludePath>E:\Sumarte\Code\vba3_VBF\trunk\VBF\c++\Cpp\runtime\src\tree;E:\Sumarte\Code\vba3_VBF\trunk\VBF\c++\Cpp\demo\Windows\antlr4-cpp-demo\inc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Static|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -236,6 +237,7 @@
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -335,21 +337,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\generated\TLexer.cpp" />
-    <ClCompile Include="..\..\generated\TParser.cpp" />
-    <ClCompile Include="..\..\generated\TParserBaseListener.cpp" />
-    <ClCompile Include="..\..\generated\TParserBaseVisitor.cpp" />
-    <ClCompile Include="..\..\generated\TParserListener.cpp" />
-    <ClCompile Include="..\..\generated\TParserVisitor.cpp" />
+    <ClCompile Include="..\..\generated\VbfBaseListener.cpp" />
+    <ClCompile Include="..\..\generated\VbfBaseVisitor.cpp" />
+    <ClCompile Include="..\..\generated\VbfLexer.cpp" />
+    <ClCompile Include="..\..\generated\VbfListener.cpp" />
+    <ClCompile Include="..\..\generated\VbfParser.cpp" />
+    <ClCompile Include="..\..\generated\VbfVisitor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\VbfDatabase.cpp" />
+    <ClCompile Include="src\VbfHeaderSection.cpp" />
+    <ClCompile Include="src\VbfMyVisitor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\generated\TLexer.h" />
-    <ClInclude Include="..\..\generated\TParser.h" />
-    <ClInclude Include="..\..\generated\TParserBaseListener.h" />
-    <ClInclude Include="..\..\generated\TParserBaseVisitor.h" />
-    <ClInclude Include="..\..\generated\TParserListener.h" />
-    <ClInclude Include="..\..\generated\TParserVisitor.h" />
+    <ClInclude Include="..\..\generated\VbfBaseListener.h" />
+    <ClInclude Include="..\..\generated\VbfBaseVisitor.h" />
+    <ClInclude Include="..\..\generated\VbfLexer.h" />
+    <ClInclude Include="..\..\generated\VbfListener.h" />
+    <ClInclude Include="..\..\generated\VbfParser.h" />
+    <ClInclude Include="..\..\generated\VbfVisitor.h" />
+    <ClInclude Include="inc\VbfCommon.h" />
+    <ClInclude Include="inc\VbfDatabase.h" />
+    <ClInclude Include="inc\VbfHeaderSection.h" />
+    <ClInclude Include="inc\VbfMyVisItor.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\runtime\antlr4cpp-vs2015.vcxproj">

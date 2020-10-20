@@ -2,118 +2,143 @@ parser grammar TParser;
 
 options {
 	tokenVocab = TLexer;
+	language=Cpp;
 }
 
-// These are all supported parser sections:
+/*
+ * Parser Rules
+ */
 
-// Parser file header. Appears at the top in all parser related files. Use e.g. for copyrights.
-@parser::header {/* parser/listener/visitor header section */}
+/**
+ * The root rule for vbf file.
+ */
+database
+	:	versionSection headerSection
+	;
 
-// Appears before any #include in h + cpp files.
-@parser::preinclude {/* parser precinclude section */}
+/**
+ * The version specification
+ */
+versionSection
+	:	'vbf_version' '=' Reals ';'
+	;
 
-// Follows directly after the standard #includes in h + cpp files.
-@parser::postinclude {
-/* parser postinclude section */
-#ifndef _WIN32
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-}
+/**
+ * The header specification
+ */
+headerSection
+	:	'header' '{'
+		(description)?
+		swPartNumber
+		swPartType
+		(dataFormatIdentifier)?
+		ecuAddress
+		frameFormat
+		(erase)?
+		(omit)?
+		(call)?
+		fileChecksum
+		'}'
+	;
 
-// Directly preceeds the parser class declaration in the h file (e.g. for additional types etc.).
-@parser::context {/* parser context section */}
+/**
+ * The description specification
+ */
+description
+	:	'description' '=' 
+		'{'
+		String (',' String)*
+		'}'
+		';'
+	;
 
-// Appears in the private part of the parser in the h file.
-// The function bodies could also appear in the definitions section, but I want to maximize
-// Java compatibility, so we can also create a Java parser from this grammar.
-// Still, some tweaking is necessary after the Java file generation (e.g. bool -> boolean).
-@parser::members {
-/* public parser declarations/members section */
-bool myAction() { return true; }
-bool doesItBlend() { return true; }
-void cleanUp() {}
-void doInit() {}
-void doAfter() {}
-}
+/**
+ * The swPartNumber specification
+ */
+swPartNumber
+	:	'sw_part_number' '=' 
+		(String | ('{' String ',' String '}'))
+		';'
+	;
 
-// Appears in the public part of the parser in the h file.
-@parser::declarations {/* private parser declarations section */}
+/**
+ * The swPartType specification
+ */
+swPartType
+	:	'sw_part_type' '=' 
+		('CARCFG' | 'CUSTOM' | 'DATA' |
+		'EXE' | 'GBL' | 'SBL' | 'SIGCFG' | 'TEST')
+		';'
+	;
 
-// Appears in line with the other class member definitions in the cpp file.
-@parser::definitions {/* parser definitions section */}
+/**
+ * The dataFormatIdentifier specification
+ */
+dataFormatIdentifier
+	:	'data_format_identifier' '=' 
+		(Hexadecimal | Binary | Decimal)
+		';'
+	;
 
-// Additionally there are similar sections for (base)listener and (base)visitor files.
-@parser::listenerpreinclude {/* listener preinclude section */}
-@parser::listenerpostinclude {/* listener postinclude section */}
-@parser::listenerdeclarations {/* listener public declarations/members section */}
-@parser::listenermembers {/* listener private declarations/members section */}
-@parser::listenerdefinitions {/* listener definitions section */}
+/**
+ * The ecuAddress specification
+ */
+ecuAddress
+	:	'ecu_address' '=' 
+		(
+		(Hexadecimal) |
+		('{'(Hexadecimal) ',' (Hexadecimal) ',' (Hexadecimal) '}')
+		)
+		';'
+	;
 
-@parser::baselistenerpreinclude {/* base listener preinclude section */}
-@parser::baselistenerpostinclude {/* base listener postinclude section */}
-@parser::baselistenerdeclarations {/* base listener public declarations/members section */}
-@parser::baselistenermembers {/* base listener private declarations/members section */}
-@parser::baselistenerdefinitions {/* base listener definitions section */}
+/**
+ * The frameFormat specification
+ */
+frameFormat
+	:	'frame_format' '=' 
+		('CAN_STANDARD' | 'CAN_EXTENDED')
+		';'
+	;
 
-@parser::visitorpreinclude {/* visitor preinclude section */}
-@parser::visitorpostinclude {/* visitor postinclude section */}
-@parser::visitordeclarations {/* visitor public declarations/members section */}
-@parser::visitormembers {/* visitor private declarations/members section */}
-@parser::visitordefinitions {/* visitor definitions section */}
+/**
+ * The erase specification
+ */
+erase
+	:	'erase' '=' 
+		'{'
+		('{' (Hexadecimal) ',' (Hexadecimal) '}') 
+		(',' '{' (Hexadecimal) ',' (Hexadecimal) '}')*
+		'}'
+		';'
+	;
 
-@parser::basevisitorpreinclude {/* base visitor preinclude section */}
-@parser::basevisitorpostinclude {/* base visitor postinclude section */}
-@parser::basevisitordeclarations {/* base visitor public declarations/members section */}
-@parser::basevisitormembers {/* base visitor private declarations/members section */}
-@parser::basevisitordefinitions {/* base visitor definitions section */}
+/**
+ * The omit specification
+ */
+omit
+	:	'omit' '=' 
+		'{'
+		('{' (Hexadecimal) ',' (Hexadecimal) '}') 
+		(',' '{' (Hexadecimal) ',' (Hexadecimal) '}')*
+		'}'
+		';'
+	;
 
-// Actual grammar start.
-main: stat+ EOF;
-divide : ID (and_ GreaterThan)? {doesItBlend()}?;
-and_ @init{ doInit(); } @after { doAfter(); } : And ;
+/**
+ * The call specification
+ */
+call
+	:	'call' '=' 
+		(Hexadecimal)
+		';'
+	;
 
-conquer:
-	divide+
-	| {doesItBlend()}? and_ { myAction(); }
-	| ID (LessThan* divide)?? { $ID.text; }
-;
-
-// Unused rule to demonstrate some of the special features.
-unused[double input = 111] returns [double calculated] locals [int _a, double _b, int _c] @init{ doInit(); } @after { doAfter(); } :
-	stat
-;
-catch [...] {
-  // Replaces the standard exception handling.
-}
-finally {
-  cleanUp();
-}
-
-unused2:
-	(unused[1] .)+ (Colon | Semicolon | Plus)? ~Semicolon
-;
-
-stat: expr Equal expr Semicolon
-    | expr Semicolon
-;
-
-expr: expr Star expr
-    | expr Plus expr
-    | OpenPar expr ClosePar
-    | <assoc = right> expr QuestionMark expr Colon expr
-    | <assoc = right> expr Equal expr
-    | identifier = id
-    | flowControl
-    | INT
-    | String
-;
-
-flowControl:
-	Return expr # Return
-	| Continue # Continue
-;
-
-id: ID;
-array : OpenCurly el += INT (Comma el += INT)* CloseCurly;
-idarray : OpenCurly element += id (Comma element += id)* CloseCurly;
-any: t = .;
+/**
+ * The fileChecksum specification
+ */
+fileChecksum
+	:	'file_checksum' '=' 
+		(Hexadecimal)
+		';'
+	;
