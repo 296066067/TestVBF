@@ -26,7 +26,7 @@ typedef enum _SwPartType_E
 	DATA,
 	EXE,
 	GBL,
-	Test,
+	SBL,
 	SIGCFG,
 	TEST
 

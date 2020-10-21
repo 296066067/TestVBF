@@ -144,7 +144,7 @@ antlrcpp::Any VbfMyVisitor::visitSwPartType(antlrcpptest::VbfParser::SwPartTypeC
 	else if (str == "GBL")
 		VbfDatabase.headerSection.swPartType = GBL;
 	else if (str == "SBL")
-		VbfDatabase.headerSection.swPartType = Test;
+		VbfDatabase.headerSection.swPartType = SBL;
 	else if (str == "SIGCFG")
 		VbfDatabase.headerSection.swPartType = SIGCFG;
 	else if (str == "TEST")
@@ -283,7 +283,7 @@ antlrcpp::Any VbfMyVisitor::visitErase(antlrcpptest::VbfParser::EraseContext * c
 	}
 
 	//If sw part type = SBL or GBL, the VBF file shall not contain the erase identifier.
-	if (VbfDatabase.headerSection.swPartType == Test || 
+	if (VbfDatabase.headerSection.swPartType == SBL || 
 		VbfDatabase.headerSection.swPartType == GBL ||
 		VbfDatabase.headerSection.swPartType == InvalidSwPartType)
 	{

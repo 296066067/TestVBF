@@ -282,12 +282,12 @@ ValidityOfContent_E VbfHeaderSection::getCallValidity()
     //The call entry is mandatory in VBF files with sw part type identifier values equal to SBL or GBL and optional
     //in VBF files with sw part type equal to TEST.
     //For all other identifier values of sw part type, the call entry is not allowed.
-    if (swPartType == Test || swPartType == GBL)
+    if (swPartType == SBL || swPartType == GBL)
     {
         if (callValidity == NonExistent)
             return ExistentButInvalid;
     }
-    else if (swPartType == Test)
+    else if (swPartType == TEST)
     {
                 
     }

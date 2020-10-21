@@ -125,7 +125,7 @@ namespace VBF
             }
 
             //If sw part type = SBL or GBL, the VBF file shall not contain the erase identifier.
-            if (database.Header.SwPartTypeValue == SwPartType.Test || 
+            if (database.Header.SwPartTypeValue == SwPartType.SBL || 
                 database.Header.SwPartTypeValue == SwPartType.GBL ||
                 database.Header.SwPartTypeValue == SwPartType.Invalid)
             {
@@ -456,7 +456,7 @@ namespace VBF
             else if (str.Equals("GBL"))
                 database.Header.SwPartTypeValue = SwPartType.GBL;
             else if (str.Equals("SBL"))
-                database.Header.SwPartTypeValue = SwPartType.Test;
+                database.Header.SwPartTypeValue = SwPartType.SBL;
             else if (str.Equals("SIGCFG"))
                 database.Header.SwPartTypeValue = SwPartType.SIGCFG;
             else if (str.Equals("TEST"))

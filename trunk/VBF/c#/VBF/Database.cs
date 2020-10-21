@@ -20,7 +20,7 @@ namespace VBF
         DATA,
         EXE,
         GBL,
-        Test,
+        SBL,
         SIGCFG,
         TEST
     }
@@ -700,12 +700,12 @@ namespace VBF
             //The call entry is mandatory in VBF files with sw part type identifier values equal to SBL or GBL and optional
             //in VBF files with sw part type equal to TEST.
             //For all other identifier values of sw part type, the call entry is not allowed.
-            if (swPartType == SwPartType.Test || swPartType == SwPartType.GBL)
+            if (swPartType == SwPartType.SBL || swPartType == SwPartType.GBL)
             {
                 if (callIsValid == ValidityOfContent.NonExistent)
                     return ValidityOfContent.ExistentButInvalid;
             }
-            else if (swPartType == SwPartType.Test)
+            else if (swPartType == SwPartType.TEST)
             {
                 
             }
